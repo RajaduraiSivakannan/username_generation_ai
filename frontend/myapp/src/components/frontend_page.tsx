@@ -24,6 +24,9 @@ export const Nicknamepage = () => {
         if (page === 1) {
             fetch_surnames()
         }
+        if(page===2 && loading === false && generatedname.length===0){
+            alert("error occured refresh and retry")
+        }
 
     }, [page])
 
