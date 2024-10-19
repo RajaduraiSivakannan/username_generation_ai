@@ -1,11 +1,13 @@
 from flask import Flask,make_response,jsonify,request
 from flask_cors import CORS
 from controller import usernamecontroller,toxiccontroller
+import os
+from dotenv import load_dotenv
 
 app=Flask(__name__)
 CORS(app)
-
-@app.route('/usernamemodelrequestresponse',methods=['POST'])
+load_dotenv()
+@app.route(os.getenv('py_model_api_link'),methods=['POST'])
 def usernickname():
     try:
         body=request.get_json()
@@ -19,7 +21,7 @@ def usernickname():
     except Exception as e:
         return make_response(jsonify({"error":str(e)}),400)
     
-@app.route('/toxicworddetection',methods=['POST'])
+@app.route(os.getenv("py_toxic_model_api_link"),methods=['POST'])
 def toxicworddetection():
     try:
         body=request.get_json()
@@ -35,4 +37,4 @@ def toxicworddetection():
     
 
 if __name__=="__main__":
-    app.run(debug=True,port=5000)
+    app.run(debug=True,port=os.getenv("py_port"))

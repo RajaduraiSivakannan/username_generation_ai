@@ -2,9 +2,12 @@ from transformers import pipeline
 import joblib
 from flask import Flask,make_response,jsonify,request
 from transformers import AutoTokenizer
+import os
+from dotenv import load_dotenv
+load_dotenv()
 
 
-generator=joblib.load(r"D:\Trained Models\usernamemodel_trained_no_1.joblib")
+generator=joblib.load(os.getenv("finetuned_model_link"))
 pipe = pipeline("text-classification", model="s-nlp/roberta_toxicity_classifier")
 tokenizer = AutoTokenizer.from_pretrained("facebook/bart-base")
 

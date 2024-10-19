@@ -1,13 +1,14 @@
 const express = require('express');
 const axios = require('axios')
+require("dotenv").config()
 const mongoose = require('mongoose');
 const app = express();
 const moment = require('moment-timezone');
-const port = 3001
+const port = process.env.port_number
 const cors=require('cors')
 app.use(express.json())
 app.use(cors())
-mongoose.connect('mongodb://localhost:27017/nicknamecreation')
+mongoose.connect(process.env.db_link)
     .then(() => console.log('MongoDB connected'))
     .catch(err => console.error('MongoDB connection error:', err))
 const usercreds = new mongoose.Schema({
@@ -35,13 +36,13 @@ const nickname = mongoose.model('nickname', nicknameall)
 const user = mongoose.model('user', usercreds)
 
 
-// payload to  be  sent for /createuser
+// payload to  be  sent for create_api_link
 // {
-//     "name":"RAJADURAI",
-//     "mobile_number":"6382660575"
+//     "name":"xxxx",
+//     "mobile_number":"9999999999"
 // }
 
-app.post('/createuser', async (req, res) => {
+app.post(process.en.create_api_link, async (req, res) => {
     const { name, mobile_number } = req.body
     let valid = true
     if (name.trim() === "") {
@@ -70,20 +71,20 @@ app.post('/createuser', async (req, res) => {
     }
 })
 
-// payload to be sent for for /userquerysearch
+// payload to be sent for for userquery_api_link
 // {
-//     "name":"RAJADURAI",
-//     "mobile_number":"6382660575",
+//     "name":"xxx",
+//     "mobile_number":"9999999999",
 //     "usernickname":"lion"
 // }
 
-app.post('/userquerysearch', async (req, res) => {
+app.post(process.env.userquery_api_link, async (req, res) => {
     const { name, mobile_number, usernickname } = req.body
     if (!name.trim() || !mobile_number.trim() || mobile_number.trim().length !== 10 || !usernickname.trim()) {
         return res.status(400).json({ data: "Please check the sent payload correctly" });
     }
     try {
-        let toxicresponse = await axios.post('http://127.0.0.1:5000/toxicworddetection', { "data": usernickname })
+        let toxicresponse = await axios.post(process.env.toxic_api_link, { "data": usernickname })
         if (toxicresponse.status === 200) {
             if (toxicresponse.data.data === "toxic") {
                 return res.status(200).json({ "data": "Toxic Word Detected ", "flag": "True" })
@@ -139,7 +140,7 @@ app.post('/userquerysearch', async (req, res) => {
                     return res.status(200).json({ "data": findrelation.generatednames })
                 }
                 else {
-                    let response = await axios.post('http://127.0.0.1:5000/usernamemodelrequestresponse', { data: name + usernickname })
+                    let response = await axios.post(process.env.model_api_link, { data: name + usernickname })
                     if (response.status === 200) {
                         let response_data = response.data.data
                         const finduser = await user.findOne({ name: name, mobile_number: mobile_number })
@@ -189,7 +190,7 @@ app.post('/userquerysearch', async (req, res) => {
     }
 })
 
-app.get('/getnicknames', async (req, res) => {
+app.get(process.env.get_api_link, async (req, res) => {
     try {
         const names = await nickname.findOne({})
         if (names) {
@@ -204,19 +205,19 @@ app.get('/getnicknames', async (req, res) => {
         return res.status(500).json({ "data": "Internal Server Error" })
     }
 })
-// payload to be sent for for /regeneratecall
+// payload to be sent for for regenerate_api_link
 // {
-//     "name":"RAJADURAI",
-//     "mobile_number":"6382660575",
+//     "name":"xxxx",
+//     "mobile_number":"9999999999",
 //     "usernickname":"lion"
 // }
-app.post('/regeneratecall', async (req, res) => {
+app.post(process.env.regenerate_api_link, async (req, res) => {
     try {
         const { name, mobile_number, usernickname } = req.body
         if (!name.trim() || !mobile_number.trim() || mobile_number.trim().length !== 10 || !usernickname.trim()) {
             return res.status(400).json({ data: "Please check the sent payload correctly" });
         }
-        let response = await axios.post('http://127.0.0.1:5000/usernamemodelrequestresponse', { data: name + usernickname })
+        let response = await axios.post(model_api_link, { data: name + usernickname })
         if (response.status === 200) {
             let response_data = response.data.data
             const finduser = await user.findOne({ name: name, mobile_number: mobile_number })
